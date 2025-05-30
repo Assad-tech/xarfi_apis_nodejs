@@ -9,6 +9,12 @@ import crypto from 'crypto';
 export const register = async (req, res) => {
     try {
         const { name, email, phoneNumber, password, role } = req.body;
+
+        // res.status(202).json({
+        //     message: 'Form Data Received',
+        //     formData: req.body,
+        // });
+
         // Basic input validation
         if (!name || !email || !phoneNumber || !password) {
             return res.status(400).json({ message: 'All fields are required' });
@@ -40,7 +46,7 @@ export const register = async (req, res) => {
         // Send OTP via email
         await sendEmail(email, 'Verify your account', `Your OTP is ${otp}`);
 
-        res.status(201).json({
+        res.status(200).json({
             message: 'OTP sent to email. Please verify.',
             userId: user._id,
         });
@@ -123,7 +129,7 @@ export const login = async (req, res) => {
         if (!user || !(await bcrypt.compare(password, user.password)))
             return res.status(401).json({ message: 'Invalid credentials' });
 
-        res.json({
+        res.status(200).json({
             message: 'Login successful',
             user: { id: user._id, name: user.name, role: user.role },
             token: generateToken(user._id),
@@ -191,3 +197,4 @@ export const resetPassword = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
