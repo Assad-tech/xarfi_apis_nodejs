@@ -15,7 +15,7 @@ router.post('/resend-otp', validate(resendOtpSchema), parseFormData, authControl
 router.post('/login', validate(loginSchema), parseFormData, authController.login);
 
 router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword);
-router.post('/forgot-password/verify-otp', validate(verifyOtpSchema), parseFormData, authController.forgotPasswordVerifyOtp);
+// router.post('/forgot-password/verify-otp', validate(verifyOtpSchema), parseFormData, authController.forgotPasswordVerifyOtp);
 router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword);
 
 
