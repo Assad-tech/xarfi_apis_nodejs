@@ -10,19 +10,6 @@ export const register = async (req, res) => {
     try {
         const { name, email, phoneNumber, password, role } = req.body;
 
-        // res.status(202).json({
-        //     message: 'Form Data Received',
-        //     formData: req.body,
-        // });
-
-        // Basic input validation
-        if (!name || !email || !phoneNumber || !password) {
-            return res.status(400).json({ message: 'All fields are required' });
-        }
-        // Email validation
-        const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: 'Email already exists' });
-
         // Role validation
         const allowedRoles = ['user', 'salon'];
         const roleToSave = role && allowedRoles.includes(role) ? role : 'salon';
@@ -41,8 +28,8 @@ export const register = async (req, res) => {
             otp,
             otpExpires,
         });
-        // console.log('sendEmail is:', sendEmail);
 
+        // console.log('sendEmail is:', sendEmail);
         // Send OTP via email
         await sendEmail(email, 'Verify your account', `Your OTP is ${otp}`);
 
@@ -51,11 +38,6 @@ export const register = async (req, res) => {
             userId: user._id,
         });
 
-        // res.status(201).json({
-        //     message: 'User registered successfully',
-        //     user: { id: user._id, name: user.name, role: user.role },
-        //     token: generateToken(user._id),
-        // });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
@@ -65,7 +47,6 @@ export const register = async (req, res) => {
 export const verifyOtp = async (req, res) => {
     try {
         const { userId, otp } = req.body;
-        // console.log('req.body:', req.body);
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
@@ -73,6 +54,11 @@ export const verifyOtp = async (req, res) => {
             return res.status(400).json({ message: 'User already verified' });
         }
 
+        // console.log('user.otp:', user.otp);
+        // console.log('req.otp:', otp);
+        // console.log('otpExpires:', user.otpExpires);
+        // console.log('currentTime:', new Date());
+        
         if (user.otp !== otp || user.otpExpires < new Date()) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
@@ -107,7 +93,7 @@ export const resendOtp = async (req, res) => {
         }
 
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
-        const otpExpires = new Date(Date.now() + 1 * 60 * 1000); // 1 minute
+        const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 1 minute
 
         user.otp = otp;
         user.otpExpires = otpExpires;
@@ -148,42 +134,69 @@ export const forgotPassword = async (req, res) => {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const otp = Math.floor(1000 + Math.random() * 90000).toString();
-        const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
+        const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 10 minutes
+        const isPasswordChanged = false;
         user.otp = otp;
         user.otpExpires = otpExpires;
+        user.isPasswordChanged = isPasswordChanged;
         await user.save();
 
-        await sendEmail(email, 'Reset Your Password - Xarfi', `Your OTP to reset password is: ${otp}`);
+        await sendEmail(email, 'Xarfi - Reset Your Password OTP ', `Your OTP to reset password is: ${otp}`);
 
         res.status(200).json({
             message: 'password reset OTP is sent to your email',
             userId: user._id,
+            otpExpires: user.otpExpires,
         });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
-// Reset Password
-export const resetPassword = async (req, res) => {
+
+// forgotPassword Verify OTP
+export const forgotPasswordVerifyOtp = async (req, res) => {
     try {
-        const { userId, resetOtp, newPassword } = req.body;
+        const { userId, otp } = req.body;
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (
-            user.otp !== resetOtp ||
-            !user.otpExpires ||
-            user.otpExpires < Date.now()
-        ) {
-            return res.status(400).json({ message: 'Invalid or expired token' });
+        if (!user.otp || !user.otpExpires)
+            return res.status(400).json({ message: 'No OTP requested' });
+
+        const isOtpValid = user.otp === otp && user.otpExpires > Date.now();
+
+        if (!isOtpValid) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
+
+        // OTP is valid — now you can allow password reset in the next step
+        user.otp = null;
+        user.otpExpires = null;
+        await user.save();
+
+        res.status(200).json({
+            message: 'Forgot password OTP verified successfully.',
+            userId: user._id, // may be needed for next step
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+}
+// Reset Password
+export const resetPassword = async (req, res) => {
+    try {
+        const { userId, newPassword } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
 
         user.password = await bcrypt.hash(newPassword, 10);
         user.otp = undefined;
         user.otpExpires = undefined;
+        user.isPasswordChanged = true;
         await user.save();
         const token = generateToken(user._id);
 

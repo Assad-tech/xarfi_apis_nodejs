@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import salonRoutes from './routes/salonRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 // import userRoutes from './routes/userRoutes.js';
+import parseFormData from './middleware/formDataParser.js';
 
 
 dotenv.config();
@@ -19,7 +20,7 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 
 // Routes
-app.use('/auth', authRoutes);
+app.use('/auth',parseFormData, authRoutes);
 app.use('/salon', salonRoutes);
 // app.use('/admin', adminRoutes);
 // app.use('/salon', salonRoutes);
