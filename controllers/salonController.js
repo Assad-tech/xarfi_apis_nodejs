@@ -51,11 +51,11 @@ export const createSalon = async (req, res) => {
 
 // Create new Service
 export const createService = async (req, res) => {
-    console.log('req.file:', req);
     try {
-        const userId = req.user._id;
-        // const salon = await Salon.findOne({ owner: userId });
 
+        // ....commented untill the real salon is created....
+        // const userId = req.user._id;
+        // const salon = await Salon.findOne({ owner: userId });
         // if (!salon) {
         //     return res.status(404).json({ message: 'Salon not found for this user' });
         // }
@@ -70,13 +70,31 @@ export const createService = async (req, res) => {
             price
         } = req.body;
 
-        // Translate if description is provided
+        // Translate name
+        const nameTranslations = await translateText(name, ['de']);
+        const nameObj = {
+            en: name,
+            de: nameTranslations.de
+        };
+
+        // Translate categories (array of strings)
+        const translatedCategories = [];
+        const categories = Array.isArray(category) ? category : [category];
+        for (const cat of categories) {
+            const catTranslations = await translateText(cat, ['de']);
+            translatedCategories.push({
+                en: cat,
+                de: catTranslations.de
+            });
+        }
+
+        // Translate description
         let descriptionObj = {};
         if (description) {
-            const translations = await translateText(description, ['de']);
+            const descTranslations = await translateText(description, ['de']);
             descriptionObj = {
                 en: description,
-                de: translations.de
+                de: descTranslations.de
             };
         }
 
@@ -84,9 +102,8 @@ export const createService = async (req, res) => {
 
         const newService = new Service({
             salon: salonId,
-            name,
-            // category,
-            category: Array.isArray(category) ? category : [category],
+            name: nameObj,
+            category: translatedCategories,
             description: descriptionObj,
             targetGroup: Array.isArray(targetGroup) ? targetGroup : [targetGroup],
             duration,
