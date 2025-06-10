@@ -9,6 +9,7 @@ export const registerSchema = Joi.object({
     role: Joi.string().valid('admin', 'master', 'salon', 'user').required(), // Updated valid roles
 });
 
+// otp validation for user register api
 export const verifyOtpSchema = Joi.object({
     userId: Joi.string().required(),
     otp: Joi.string().length(4).pattern(/^[0-9]+$/).required(),
@@ -29,9 +30,15 @@ export const forgotPasswordSchema = Joi.object({
     email: Joi.string().email().required(),
 });
 
+// otp validation for forgot password
+export const forgotPasswordVerifyOtpSchema = Joi.object({
+    userId: Joi.string().required(),
+    otp: Joi.string().length(5).required(), // assuming your OTP is always 5 digits
+});
 
 export const resetPasswordSchema = Joi.object({
     userId: Joi.string().required(),
-    resetOtp: Joi.string().required(),
     newPassword: Joi.string().min(6).required(),
 });
+
+

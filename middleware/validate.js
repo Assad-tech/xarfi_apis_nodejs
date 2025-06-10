@@ -1,10 +1,15 @@
-// middleware/validate.js
-export default function validate(schema) {
+const validate = (schema) => {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);
+
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      const cleanMessage = error.details[0].message.replace(/["]/g, "");
+      // console.log("hello");
+      return res.status(400).json({ message: cleanMessage });
     }
+
     next();
   };
-}
+};
+
+export default validate;
