@@ -9,10 +9,25 @@ import { authenticate } from '../middleware/auth.js';
 import { serviceSchema } from '../validators/serviceValidator.js';
 const router = express.Router();
 
-router.post('/create', authenticate, upload.array('images', 6), validate(salonSchema), salonController.createSalon);
+// upload.array('images', 6),
+router.post(
+  "/create",
+  authenticate,
+  (req, res, next) =>
+    upload(req, res, function (err) {
+      if (err instanceof multer.MulterError || err) {
+        return res.status(400).json({ error: err.message });
+      }
+      next();
+    }),
+  validateImages,
+  validate(salonSchema),
+  salonController.createSalon
+);
 
 
 // Create new service (salon owner only)
 router.post('/service/create', authenticate, uploadServiceImage, validate(serviceSchema), salonController.createService);
 export default router;
+
 
