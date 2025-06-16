@@ -13,12 +13,12 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     name: {
-      type: String,
-      required: false,
+      en: { type: String, required: true },
+      de: { type: String },
     },
     description: {
-      type: String,
-      required: false,
+      en: { type: String, required: true },
+      de: { type: String },
     },
     quantity: {
       type: Number,

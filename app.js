@@ -7,6 +7,7 @@ import salonRoutes from "./routes/salonRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import teamSelectRoutes from "./routes/teamSizes.js";
 import salonOwner from "./routes/salonOwnerRoutes.js";
+import admin from "./routes/adminRoutes.js";
 import parseFormData from "./middleware/formDataParser.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -33,9 +34,13 @@ app.set("view engine", "ejs");
 
 // Routes
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use("/auth", parseFormData, authRoutes);
 app.use("/salon", salonRoutes);
 app.use("/teamSize", parseFormData, teamSelectRoutes);
+
+app.use("/api/admin", admin);
+
 app.use("/api/salon-owner", salonOwner);
 
 // app.use('/admin', adminRoutes);

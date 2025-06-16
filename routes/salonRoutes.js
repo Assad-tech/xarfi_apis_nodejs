@@ -13,38 +13,38 @@ import { serviceSchema } from "../validators/serviceValidator.js";
 const router = express.Router();
 
 // upload.array('images', 6),
-router.post(
-  "/create",
-  authenticate,
-  (req, res, next) =>
-    upload(req, res, function (err) {
-      if (err instanceof multer.MulterError || err) {
-        return res.status(400).json({ error: err.message });
-      }
-      next();
-    }),
-  validateImages,
-  validate(salonSchema),
-  salonController.createSalon
-);
+// router.post(
+//   "/create",
+//   authenticate,
+//   (req, res, next) =>
+//     upload(req, res, function (err) {
+//       if (err instanceof multer.MulterError || err) {
+//         return res.status(400).json({ error: err.message });
+//       }
+//       next();
+//     }),
+//   validateImages,
+//   validate(salonSchema),
+//   salonController.createSalon
+// );
 
 // Create new service (salon owner only)
-router.post(
-  "/service/create",
-  authenticate,
-  uploadServiceImage,
-  validate(serviceSchema),
-  salonController.createService
-);
+// router.post(
+//   "/service/create",
+//   authenticate,
+//   uploadServiceImage,
+//   validate(serviceSchema),
+//   salonController.createService
+// );
 
-router.get("/catogary", authenticate, serviceCategoryController.index);
+// router.get("/catogary", authenticate, serviceCategoryController.index);
 
-router.get(
-  "/catogary-services",
-  authenticate,
-  salonController.getServiceWithCategory
-);
+// router.get(
+//   "/catogary-services",
+//   authenticate,
+//   salonController.getServiceWithCategory
+// );
 
-router.delete("/catogary/:id", authenticate, salonController.destroyService);
+// router.delete("/service/:id", authenticate, salonController.destroyService);
 
 export default router;

@@ -1,3 +1,4 @@
+import { translateText } from "../lib/translator.js";
 import { ServiceCategory } from "../models/serviceCategory.js";
 
 export const index = async (req, res) => {
@@ -14,8 +15,14 @@ export const store = async (req, res) => {
   try {
     const { name } = req.body;
 
+    const nameTranslations = await translateText(name, ["de"]);
+    const nameObj = {
+      en: name,
+      de: nameTranslations.de,
+    };
+
     const serviceCategory = await ServiceCategory.create({
-      name,
+      name: nameObj,
     });
 
     res.status(201).json({
@@ -47,10 +54,16 @@ export const update = async (req, res) => {
   try {
     const { name } = req.body;
 
+    const nameTranslations = await translateText(name, ["de"]);
+    const nameObj = {
+      en: name,
+      de: nameTranslations.de,
+    };
+
     const serviceCategory = await ServiceCategory.findByIdAndUpdate(
       req.params.id,
       {
-        name,
+        name: nameObj,
         new: true,
       }
     );

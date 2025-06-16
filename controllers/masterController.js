@@ -1,21 +1,29 @@
 import bcrypt from "bcryptjs";
 import Master from "../models/Master.js";
 
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Only needed if using ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const index = async (req, res) => {
-  // const master = await ServiceCategory.find().lean();
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
   const masters = await Master.find()
     .populate("services_id") // populates with related Service documents
     .lean();
   //   console.log(master);
 
-  // const mastersWithImageUrl = masters.map(master => ({
-  //   ...master,
-  //   image_url: master.image ? `${baseUrl}${master.image.replace(/\\/g, "/")}` : null
-  // }));
+  const updatedmasters = masters.map((master) => ({
+    ...master,
+    image: `${baseUrl}/${master.image.replace(/\\/g, "/")}`,
+  }));
 
   res.status(200).json({
     status: 1,
-    data: masters,
+    data: updatedmasters,
     message: "Master fetched successfully.",
   });
 };
@@ -28,9 +36,17 @@ export const store = async (req, res) => {
       password,
       experience,
       sameTimingForAllDays,
+      generalTiming,
       specificDailyTimings,
       services_id,
     } = req.body;
+
+    const existEmail = await Master.findOne({ email });
+    if (existEmail) {
+      return res.status(400).json({
+        message: "Email already in use by another master",
+      });
+    }
 
     // console.log("Uploaded File:", req.file);
     const hashed = await bcrypt.hash(password, 10);
@@ -44,6 +60,7 @@ export const store = async (req, res) => {
       access_password: password,
       experience,
       sameTimingForAllDays,
+      generalTiming,
       specificDailyTimings,
       services_id,
       image: imagePath,
@@ -80,6 +97,17 @@ export const destroy = async (req, res) => {
     //     fs.unlinkSync(imagePath);
     //   }
     // }
+
+    if (master.image) {
+      const imagePath = path.join(__dirname, "..", master.image); // go up one level
+
+      // console.log(imagePath);
+      // console.log(fs.existsSync(imagePath));
+
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
 
     res.status(200).json({
       status: 1,

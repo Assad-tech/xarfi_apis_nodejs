@@ -2,6 +2,7 @@ import Product from "../models/Product.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { translateText } from "../lib/translator.js";
 
 // Only needed if using ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -28,13 +29,27 @@ export const store = async (req, res) => {
     const { name, description, quantity, price } = req.body;
 
     // console.log("Uploaded File:", req.file);
+    const nameTranslations = await translateText(name, ["de"]);
+    const nameObj = {
+      en: name,
+      de: nameTranslations.de,
+    };
+
+    let descriptionObj = {};
+    if (description) {
+      const descTranslations = await translateText(description, ["de"]);
+      descriptionObj = {
+        en: description,
+        de: descTranslations.de,
+      };
+    }
 
     const imagePath = req.file ? req.file.path : null;
 
     const product = await Product.create({
       owner: req.user._id,
-      name,
-      description,
+      name: nameObj,
+      description: descriptionObj,
       quantity,
       price,
       image: imagePath,

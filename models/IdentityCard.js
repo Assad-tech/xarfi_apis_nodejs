@@ -8,12 +8,12 @@ const identityCardSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    FrontImage: {
+    frontImage: {
       type: String,
       required: true,
     },
 
-    BackImage: {
+    backImage: {
       type: String,
       required: true,
     },

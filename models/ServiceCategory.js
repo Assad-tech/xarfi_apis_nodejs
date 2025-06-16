@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const ServiceCategorySchema = new mongoose.Schema(
   {
     name: {
-      type: String,
-      required: true,
+      en: { type: String, required: true },
+      de: { type: String },
     },
     status: {
       type: Boolean,

@@ -25,6 +25,7 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   const allowedTypes = [".jpg", ".jpeg", ".png"];
   const ext = path.extname(file.originalname).toLowerCase();
+
   if (allowedTypes.includes(ext)) {
     cb(null, true);
   } else {
@@ -39,4 +40,25 @@ const upload = multer({
   fileFilter,
 }).array("images", 6);
 
-export default upload;
+export const handleImageUpload = (req, res, next) => {
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res
+          .status(400)
+          .json({ message: "File size should not exceed 5MB." });
+      }
+      if (err.code === "LIMIT_UNEXPECTED_FILE") {
+        return res
+          .status(400)
+          .json({ message: "Maximum 6 images are allowed." });
+      }
+      return res.status(400).json({ message: err.message });
+    } else if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    next();
+  });
+};
+
+export default handleImageUpload;

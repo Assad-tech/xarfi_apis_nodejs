@@ -3,7 +3,14 @@ import Joi from "joi";
 import mongoose from "mongoose";
 
 export const serviceSchema = Joi.object({
-  salonId: Joi.string().required(), // ObjectId of the salon
+  salonId: Joi.string()
+    .custom((value, helpers) => {
+      if (!mongoose.Types.ObjectId.isValid(value)) {
+        return helpers.message("Invalid category ID");
+      }
+      return value;
+    })
+    .required(), // ObjectId of the salon
   name: Joi.string().required(),
   category: Joi.array()
     .items(

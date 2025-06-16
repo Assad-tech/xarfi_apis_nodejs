@@ -12,17 +12,12 @@ const serviceSchema = new mongoose.Schema(
       ref: "Salon",
       required: true,
     },
+    image: { type: String, required: true },
     name: {
       en: { type: String, required: true },
       de: { type: String },
     },
 
-    // category: [
-    //     {
-    //         en: { type: String, required: true },
-    //         de: { type: String }
-    //     }
-    // ],
     category: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -44,8 +39,9 @@ const serviceSchema = new mongoose.Schema(
 
     duration: { type: Number, required: true },
     price: { type: Number, required: true },
-    image: { type: String },
+
     isActive: { type: Boolean, default: true },
+    status: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

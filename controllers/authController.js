@@ -4,11 +4,29 @@ import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
+import { translateText } from "../lib/translator.js";
 
 // Register a new user
 export const register = async (req, res) => {
   try {
     const { name, email, phoneNumber, password, role } = req.body;
+
+    const existEmail = await User.findOne({ email });
+    if (existEmail) {
+      return res.status(400).json({
+        message: "Email already in use",
+      });
+    }
+    const existPhone = await User.findOne({ phoneNumber });
+    if (existPhone) {
+      return res.status(400).json({ message: "Phone number already in use" });
+    }
+
+    const nameTranslations = await translateText(name, ["de"]);
+    const nameObj = {
+      en: name,
+      de: nameTranslations.de,
+    };
 
     // Role validation
     const allowedRoles = ["user", "salon"];
@@ -19,7 +37,7 @@ export const register = async (req, res) => {
     const otpExpires = new Date(Date.now() + 1 * 60 * 1000); // 1 min expiry
 
     const user = await User.create({
-      name,
+      name: nameObj,
       email,
       phoneNumber,
       password: hashed,
@@ -33,8 +51,12 @@ export const register = async (req, res) => {
     await sendEmail(email, "Verify your account", `Your OTP is ${otp}`);
 
     res.status(200).json({
+      status: 1,
+      data: {
+        userId: user._id,
+        otpExpiresTime: otpExpires,
+      },
       message: "OTP sent to email. Please verify.",
-      userId: user._id,
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });

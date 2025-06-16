@@ -5,8 +5,20 @@ import Service from "../models/Service.js";
 import { translateText } from "../lib/translator.js";
 import { ServiceCategory } from "../models/serviceCategory.js";
 
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import User from "../models/User.js";
+import Master from "../models/Master.js";
+import Style from "../models/Style.js";
+import Product from "../models/Product.js";
+
+// Only needed if using ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const createSalon = async (req, res) => {
-  console.log(req.file);
+  // console.log(req.file);
   try {
     const {
       name,
@@ -21,6 +33,19 @@ export const createSalon = async (req, res) => {
       generalTiming, // { timing: {start, end}, lunchBreak: {start, end} }
       specificDailyTimings, // [{ day, open, timing: {start, end} }]
     } = req.body;
+
+    const existEmail = await Salon.findOne({ businessEmail });
+    if (existEmail) {
+      return res.status(400).json({
+        message: "Email address is already registered to another salon",
+      });
+    }
+    const existPhone = await Salon.findOne({ businessPhone });
+    if (existPhone) {
+      return res.status(400).json({
+        message: "Phone number is already registered to another salon",
+      });
+    }
 
     const images = req.files?.map((file) => file.filename) || [];
 
@@ -46,147 +71,41 @@ export const createSalon = async (req, res) => {
       message: "Salon created successfully",
     });
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: err.message });
-  }
-};
-
-// Create new Service
-export const createService = async (req, res) => {
-  try {
-    // ....commented untill the real salon is created....
-    // const userId = req.user._id;
-    // const salon = await Salon.findOne({ owner: userId });
-    // if (!salon) {
-    //     return res.status(404).json({ message: 'Salon not found for this user' });
-    // }
-
-    const {
-      salonId,
-      name,
-      category,
-      description,
-      targetGroup,
-      duration,
-      price,
-    } = req.body;
-
-    // Translate name
-    const nameTranslations = await translateText(name, ["de"]);
-    const nameObj = {
-      en: name,
-      de: nameTranslations.de,
-    };
-
-    // Translate categories (array of strings)
-    const translatedCategories = [];
-    // const categories = Array.isArray(category) ? category : [category];
-    const categories = Array.isArray(req.body.category)
-      ? req.body.category
-      : [req.body.category];
-
-    for (const categoryId of categories) {
-      const categoryDoc = await ServiceCategory.findById(categoryId);
-
-      if (!categoryDoc) {
-        return res
-          .status(400)
-          .json({ error: `Category not found: ${categoryId}` });
-      }
-
-      // const translations = await translateText(categoryDoc.name, ["de"]);
-
-      // translatedCategories.push({
-      //   en: categoryDoc.name,
-      //   de: translations.de,
-      // });
-    }
-
-    // Translate description
-    let descriptionObj = {};
-    if (description) {
-      const descTranslations = await translateText(description, ["de"]);
-      descriptionObj = {
-        en: description,
-        de: descTranslations.de,
-      };
-    }
-
-    const imagePath = req.file ? req.file.path : null;
-
-    const newService = new Service({
-      owner: req.user._id,
-      salon: salonId,
-      name: nameObj,
-      category: categories,
-      description: descriptionObj,
-      targetGroup: Array.isArray(targetGroup) ? targetGroup : [targetGroup],
-      duration,
-      price,
-      image: imagePath,
-    });
-
-    await newService.save();
-
-    res.status(201).json({ message: "Service created", service: newService });
-  } catch (err) {
-    console.error("Create Service Error:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-export const getServiceWithCategory = async (req, res) => {
-  // console.log("hello world!");
-
-  try {
-    const serviceCategories = await ServiceCategory.find().lean();
-    const services = await Service.find().lean(); // use .lean() for better performance
-
-    // Group services under their respective categories
-    const groupedData = serviceCategories.map((category) => {
-      // console.log(category);
-      const categoryServices = services.filter(
-        (service) =>
-          service.category.map(String).includes(category._id.toString())
-        // console.log(service.category)
-        // console.log(category._id.toString())
-      );
-
-      return {
-        // category: {
-        //   _id: category._id,
-        //   name: category.name,
-        // },
-        category,
-        services: categoryServices,
-      };
-    });
-
-    return res.status(200).json({
-      status: 1,
-      data: groupedData,
-      message: "Services grouped by category fetched successfully.",
-    });
-  } catch (error) {
     return res.status(500).json({
       status: 0,
-      error: error.message,
+      error: err.message,
     });
   }
 };
 
-export const destroyService = async (req, res) => {
+export const index = async (req, res) => {
   try {
-    const service = await Service.findByIdAndDelete(req.params.id);
+    const owner = req.user._id;
 
-    res.status(200).json({
+    // const user = await User.find(req.user._id).populate("salons");
+
+    const salon = await Salon.findOne({ owner: owner }).sort({ createdAt: -1 });
+
+    const masters = await Master.find({ owner: owner })
+      .populate("services_id") // populates with related Service documents
+      .lean();
+
+    const styles = await Style.find({ owner: owner }).populate("master").lean();
+
+    const products = await Product.find({ owner: owner }).lean();
+
+    res.json({
       status: 1,
-      data: service,
-      message: "Service deleted successfully.",
+      data: {
+        salon: salon,
+        masters: masters,
+        styles: styles,
+        products: products,
+      },
     });
   } catch (err) {
     res.status(500).json({
+      status: 0,
       error: err.message,
     });
   }

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const styleShema = new mongoose.Schema(
   {
@@ -14,8 +15,8 @@ const styleShema = new mongoose.Schema(
     },
 
     name: {
-      type: String,
-      required: false,
+      en: { type: String, required: true },
+      de: { type: String },
     },
     master: [
       {
@@ -37,6 +38,7 @@ function arrayLimit(val) {
   return val.length <= 3;
 }
 
+styleShema.plugin(mongoosePaginate);
 //   export default mongoose.model("Salon", salonSchema);
 
 export default mongoose.model("Style", styleShema);

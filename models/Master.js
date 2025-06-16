@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const timeRangeSchema = new mongoose.Schema(
   {
@@ -73,5 +74,7 @@ const masterSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+masterSchema.plugin(mongoosePaginate);
 
 export default mongoose.model("Master", masterSchema);
