@@ -1,54 +1,62 @@
 // models/User.js
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  }, // fullName
-  email:
+const userSchema = new mongoose.Schema(
   {
-    type: String,
-    unique: true,
-    required: true
-  },
-  phoneNumber:
-  {
-    type: String,
-    required: true
-  },
+    name: {
+      en: { type: String, required: true },
+      de: { type: String },
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    phoneNumber: {
+      type: String,
+      unique: true,
+      required: true,
+    },
 
-  password: {
-    type: String,
-    required: true
-  },
+    password: {
+      type: String,
+      required: true,
+    },
 
-  role: {
-    type: String,
-    enum: ['admin', 'master', 'salon', 'user'],
-    default: 'salon'
-  },
+    role: {
+      type: String,
+      enum: ["admin", "master", "salon", "user"],
+      default: "salon",
+    },
 
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
 
-  isPasswordChanged: {
-    type: Boolean,
-    default: false
-  },
-  
-  // For account verification and password reset
-  otp: {
-    type: String
-  },
-  otpExpires: {
-    type: Date
-  },
-},
-  { timestamps: true });
+    isPasswordChanged: {
+      type: Boolean,
+      default: false,
+    },
 
-export default mongoose.model('User', userSchema);
+    // For account verification and password reset
+    otp: {
+      type: String,
+    },
+    otpExpires: {
+      type: Date,
+    },
+  },
+  { timestamps: true }
+);
 
+userSchema.virtual("salons", {
+  ref: "Salon", // model to use
+  localField: "_id", // field in Category
+  foreignField: "owner", // field in Product
+});
 
+userSchema.set("toObject", { virtuals: true });
+userSchema.set("toJSON", { virtuals: true });
+
+export default mongoose.model("User", userSchema);

@@ -1,11 +1,24 @@
 // controllers/salonController.js
-import Salon from '../models/Salon.js';
-import Service from '../models/Service.js';
+import Salon from "../models/Salon.js";
+import Service from "../models/Service.js";
 
-import { translateText } from '../lib/translator.js';
+import { translateText } from "../lib/translator.js";
+import { ServiceCategory } from "../models/serviceCategory.js";
+
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import User from "../models/User.js";
+import Master from "../models/Master.js";
+import Style from "../models/Style.js";
+import Product from "../models/Product.js";
+
+// Only needed if using ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const createSalon = async (req, res) => {
-  console.log(req.file);
+  // console.log(req.file);
   try {
     const {
       name,
@@ -20,6 +33,19 @@ export const createSalon = async (req, res) => {
       generalTiming, // { timing: {start, end}, lunchBreak: {start, end} }
       specificDailyTimings, // [{ day, open, timing: {start, end} }]
     } = req.body;
+
+    const existEmail = await Salon.findOne({ businessEmail });
+    if (existEmail) {
+      return res.status(400).json({
+        message: "Email address is already registered to another salon",
+      });
+    }
+    const existPhone = await Salon.findOne({ businessPhone });
+    if (existPhone) {
+      return res.status(400).json({
+        message: "Phone number is already registered to another salon",
+      });
+    }
 
     const images = req.files?.map((file) => file.filename) || [];
 
@@ -39,84 +65,48 @@ export const createSalon = async (req, res) => {
       images,
     });
 
-        res.status(201).json({
-            message: 'Salon created successfully',
-            salon,
-        });
-    } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
-    }
+    res.status(201).json({
+      status: 1,
+      data: salon,
+      message: "Salon created successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 0,
+      error: err.message,
+    });
+  }
 };
 
+export const index = async (req, res) => {
+  try {
+    const owner = req.user._id;
 
+    // const user = await User.find(req.user._id).populate("salons");
 
-// Create new Service
-export const createService = async (req, res) => {
-    try {
+    const salon = await Salon.findOne({ owner: owner }).sort({ createdAt: -1 });
 
-        // ....commented untill the real salon is created....
-        // const userId = req.user._id;
-        // const salon = await Salon.findOne({ owner: userId });
-        // if (!salon) {
-        //     return res.status(404).json({ message: 'Salon not found for this user' });
-        // }
+    const masters = await Master.find({ owner: owner })
+      .populate("services_id") // populates with related Service documents
+      .lean();
 
-        const {
-            salonId,
-            name,
-            category,
-            description,
-            targetGroup,
-            duration,
-            price
-        } = req.body;
+    const styles = await Style.find({ owner: owner }).populate("master").lean();
 
-        // Translate name
-        const nameTranslations = await translateText(name, ['de']);
-        const nameObj = {
-            en: name,
-            de: nameTranslations.de
-        };
+    const products = await Product.find({ owner: owner }).lean();
 
-        // Translate categories (array of strings)
-        const translatedCategories = [];
-        const categories = Array.isArray(category) ? category : [category];
-        for (const cat of categories) {
-            const catTranslations = await translateText(cat, ['de']);
-            translatedCategories.push({
-                en: cat,
-                de: catTranslations.de
-            });
-        }
-
-        // Translate description
-        let descriptionObj = {};
-        if (description) {
-            const descTranslations = await translateText(description, ['de']);
-            descriptionObj = {
-                en: description,
-                de: descTranslations.de
-            };
-        }
-
-        const imagePath = req.file ? req.file.path : null;
-
-        const newService = new Service({
-            salon: salonId,
-            name: nameObj,
-            category: translatedCategories,
-            description: descriptionObj,
-            targetGroup: Array.isArray(targetGroup) ? targetGroup : [targetGroup],
-            duration,
-            price,
-            image: imagePath
-        });
-
-        await newService.save();
-
-        res.status(201).json({ message: 'Service created', service: newService });
-    } catch (err) {
-        console.error('Create Service Error:', err);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
+    res.json({
+      status: 1,
+      data: {
+        salon: salon,
+        masters: masters,
+        styles: styles,
+        products: products,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 0,
+      error: err.message,
+    });
+  }
 };

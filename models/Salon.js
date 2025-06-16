@@ -1,5 +1,6 @@
 // models/Salon.js
 import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const timeRangeSchema = new mongoose.Schema(
   {
@@ -83,5 +84,7 @@ const salonSchema = new mongoose.Schema(
 function arrayLimit(val) {
   return val.length <= 6;
 }
+
+salonSchema.plugin(mongoosePaginate);
 
 export default mongoose.model("Salon", salonSchema);

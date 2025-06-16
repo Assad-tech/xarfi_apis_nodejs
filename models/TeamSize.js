@@ -3,8 +3,13 @@ import mongoose from "mongoose";
 const TeamSizeSchema = new mongoose.Schema(
   {
     name: {
-      type: String,
-      required: true,
+      en: { type: String, required: true },
+      de: { type: String },
+    },
+
+    status: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

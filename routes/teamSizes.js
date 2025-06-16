@@ -11,13 +11,13 @@ const upload = multer();
 
 const router = express.Router();
 
-router.post(
-  "/team-size",
-  authenticate,
-  // upload.none(), // Important: must come before validate()
-  validate(teamSizeValidationSchema),
-  teamSizeController.createTeamSize
-);
+// router.post(
+//   "/team-size",
+//   authenticate,
+//   // upload.none(), // Important: must come before validate()
+//   validate(teamSizeValidationSchema),
+//   teamSizeController.createTeamSize
+// );
 
 router.get("/", authenticate, teamSizeController.getTeamSize);
 
