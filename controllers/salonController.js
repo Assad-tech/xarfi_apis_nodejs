@@ -2,8 +2,8 @@
 import Salon from "../models/Salon.js";
 import Service from "../models/Service.js";
 
-import { translateText } from "../lib/translator.js";
-import { ServiceCategory } from "../models/serviceCategory.js";
+// import { translateText } from "../lib/translator.js";
+// import { ServiceCategory } from "../models/serviceCategory.js";
 
 import fs from "fs";
 import path from "path";
