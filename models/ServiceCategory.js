@@ -14,7 +14,12 @@ const ServiceCategorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const ServiceCategory = mongoose.model(
-  "ServiceCategory",
-  ServiceCategorySchema
-);
+// Prevent OverwriteModelError by checking if the model already exists
+// const ServiceCategory =
+//   mongoose.models.ServiceCategory ||
+//   mongoose.model("", ServiceCategorySchema);
+
+// export default ServiceCategory;
+
+export default mongoose.model("ServiceCategory", ServiceCategorySchema);
+
