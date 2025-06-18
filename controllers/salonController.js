@@ -3,7 +3,7 @@ import Salon from "../models/Salon.js";
 import Service from "../models/Service.js";
 
 import { translateText } from "../lib/translator.js";
-import { ServiceCategory } from "../models/serviceCategory.js";
+import ServiceCategory from "../models/ServiceCategory.js";
 
 import fs from "fs";
 import path from "path";
@@ -82,9 +82,92 @@ export const index = async (req, res) => {
   try {
     const owner = req.user._id;
 
+    // if (condition) {
+    // } else {
+    // }
+    const filterValue = req.body.targetGroup ?? "All";
+    const master = req.body.masterGroup ?? "All";
+
     // const user = await User.find(req.user._id).populate("salons");
 
-    const salon = await Salon.findOne({ owner: owner }).sort({ createdAt: -1 });
+    // const category = await ServiceCategory.find().populate({
+    //   path: "services",
+    //   match: {
+    //     owner: owner,
+    //     targetGroup: filterValue,
+    //   },
+    // });
+
+    const salons = await Salon.find({ owner: owner }).populate([
+      {
+        path: "services",
+        match: {
+          // owner: owner,
+          targetGroup: filterValue,
+        },
+        populate: {
+          path: "category", // Populate category details
+        },
+      },
+      {
+        path: "masters",
+        populate: {
+          path: "services",
+          match: {
+            targetGroup: master,
+          },
+        },
+      },
+      {
+        path: "styles",
+        populate: {
+          path: "master",
+        },
+      },
+      {
+        path: "products",
+      },
+    ]);
+
+    const result = salons.map((salon) => {
+      const grouped = {};
+
+      (salon.services || []).forEach((service) => {
+        const categories = Array.isArray(service.category)
+          ? service.category
+          : [service.category];
+
+        categories.forEach((cat) => {
+          if (!cat) return;
+
+          const nameKey = `${cat._id}`; // use _id as unique group key
+          if (!grouped[nameKey]) {
+            grouped[nameKey] = {
+              name: {
+                en: cat.name?.en || "Unnamed",
+                de: cat.name?.de || "",
+              },
+              services: [],
+            };
+          }
+
+          grouped[nameKey].services.push(service);
+        });
+      });
+
+      // Convert to array format
+      const groupedServices = Object.values(grouped);
+
+      return {
+        ...salon.toObject(),
+        services: groupedServices,
+      };
+    });
+
+    return res.json({
+      salon: result,
+    });
+    // const salon = await Salon.findOne({ owner: owner }).sort({ createdAt: -1 });
 
     const masters = await Master.find({ owner: owner })
       .populate("services_id") // populates with related Service documents

@@ -12,6 +12,15 @@ const objectId = Joi.string().custom((value, helpers) => {
 export const masterValidationSchema = Joi.object({
   //   owner: objectId.required(),
 
+  salon: Joi.string()
+    .custom((value, helpers) => {
+      if (!mongoose.Types.ObjectId.isValid(value)) {
+        return helpers.message("Invalid Salon ID");
+      }
+      return value;
+    })
+    .required(),
+
   name: Joi.string().required(),
   // image: Joi.string().required(),
 
@@ -57,7 +66,7 @@ export const masterValidationSchema = Joi.object({
     )
     .optional(),
 
-  services_id: Joi.array().items(objectId).optional(), // optional field
+  services: Joi.array().items(objectId).optional(), // optional field
 
   status: Joi.boolean().optional(),
 });

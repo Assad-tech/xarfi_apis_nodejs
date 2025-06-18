@@ -8,6 +8,11 @@ const styleShema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    salon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Salon",
+      required: true,
+    },
 
     images: {
       type: [String], // image URLs or filenames

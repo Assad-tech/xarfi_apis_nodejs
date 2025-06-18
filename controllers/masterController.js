@@ -11,7 +11,9 @@ const __dirname = path.dirname(__filename);
 
 export const index = async (req, res) => {
   const baseUrl = `${req.protocol}://${req.get("host")}`;
-  const masters = await Master.find()
+
+  const ownerId = req.user._id;
+  const masters = await Master.find({ owner: ownerId })
     .populate("services_id") // populates with related Service documents
     .lean();
   //   console.log(master);
@@ -31,6 +33,7 @@ export const index = async (req, res) => {
 export const store = async (req, res) => {
   try {
     const {
+      salon,
       name,
       email,
       password,
@@ -38,7 +41,7 @@ export const store = async (req, res) => {
       sameTimingForAllDays,
       generalTiming,
       specificDailyTimings,
-      services_id,
+      services,
     } = req.body;
 
     const existEmail = await Master.findOne({ email });
@@ -54,6 +57,7 @@ export const store = async (req, res) => {
 
     const master = await Master.create({
       owner: req.user._id,
+      salon,
       name,
       email,
       password: hashed,
@@ -62,7 +66,7 @@ export const store = async (req, res) => {
       sameTimingForAllDays,
       generalTiming,
       specificDailyTimings,
-      services_id,
+      services,
       image: imagePath,
     });
 

@@ -7,6 +7,11 @@ const subscribeBySaloonSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    salon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Salon",
+      required: true,
+    },
     subscriptionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subscription",

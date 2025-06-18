@@ -36,6 +36,11 @@ const masterSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    salon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Salon",
+      required: true,
+    },
 
     image: {
       type: String, // image URLs or filenames
@@ -59,7 +64,7 @@ const masterSchema = new mongoose.Schema(
 
     specificDailyTimings: [dailyTimingSchema],
 
-    services_id: [
+    services: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Service",

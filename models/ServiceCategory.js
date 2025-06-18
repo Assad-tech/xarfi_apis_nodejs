@@ -14,7 +14,13 @@ const ServiceCategorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const ServiceCategory = mongoose.model(
-  "ServiceCategory",
-  ServiceCategorySchema
-);
+ServiceCategorySchema.virtual("services", {
+  ref: "Service", // model to use
+  localField: "_id", // field in Category
+  foreignField: "category", // field in Product
+});
+
+ServiceCategorySchema.set("toObject", { virtuals: true });
+ServiceCategorySchema.set("toJSON", { virtuals: true });
+
+export default mongoose.model("ServiceCategory", ServiceCategorySchema);
