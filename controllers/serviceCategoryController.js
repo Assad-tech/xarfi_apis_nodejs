@@ -1,5 +1,5 @@
 import { translateText } from "../lib/translator.js";
-import ServiceCategory from '../models/ServiceCategory.js';
+import ServiceCategory from "../models/ServiceCategory.js";
 
 export const index = async (req, res) => {
   const serviceCategory = await ServiceCategory.find();

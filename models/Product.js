@@ -8,6 +8,11 @@ const productSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    salon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Salon",
+      required: true,
+    },
     image: {
       type: String,
       required: true,

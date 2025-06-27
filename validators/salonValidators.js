@@ -60,7 +60,7 @@ export const salonSchema = Joi.object({
         timing: Joi.object({
           start: Joi.string().required(),
           end: Joi.string().required(),
-        }).required(),
+        }).optional(),
       })
     )
     .when("sameTimingForAllDays", {

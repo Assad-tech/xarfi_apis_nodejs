@@ -3,10 +3,10 @@ import Joi from "joi";
 import mongoose from "mongoose";
 
 export const serviceSchema = Joi.object({
-  salonId: Joi.string()
+  salon: Joi.string()
     .custom((value, helpers) => {
       if (!mongoose.Types.ObjectId.isValid(value)) {
-        return helpers.message("Invalid category ID");
+        return helpers.message("Invalid salon ID");
       }
       return value;
     })

@@ -87,4 +87,40 @@ function arrayLimit(val) {
 
 salonSchema.plugin(mongoosePaginate);
 
+salonSchema.virtual("services", {
+  ref: "Service", // model to use
+  localField: "_id", // field in Category
+  foreignField: "salon", // field in Product
+});
+
+salonSchema.set("toObject", { virtuals: true });
+salonSchema.set("toJSON", { virtuals: true });
+
+salonSchema.virtual("masters", {
+  ref: "Master", // model to use
+  localField: "_id", // field in Category
+  foreignField: "salon", // field in Product
+});
+
+salonSchema.set("toObject", { virtuals: true });
+salonSchema.set("toJSON", { virtuals: true });
+
+salonSchema.virtual("styles", {
+  ref: "Style", // model to use
+  localField: "_id", // field in Category
+  foreignField: "salon", // field in Product
+});
+
+salonSchema.set("toObject", { virtuals: true });
+salonSchema.set("toJSON", { virtuals: true });
+
+salonSchema.virtual("products", {
+  ref: "Product", // model to use
+  localField: "_id", // field in Category
+  foreignField: "salon", // field in Product
+});
+
+salonSchema.set("toObject", { virtuals: true });
+salonSchema.set("toJSON", { virtuals: true });
+
 export default mongoose.model("Salon", salonSchema);

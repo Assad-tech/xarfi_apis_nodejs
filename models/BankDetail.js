@@ -7,10 +7,11 @@ const bankDetailSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    // accountTitle: {
-    //   type: String,
-    //   required: true,
-    // },
+    salon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Salon",
+      required: true,
+    },
     accountTitle: {
       en: { type: String, required: true },
       de: { type: String },

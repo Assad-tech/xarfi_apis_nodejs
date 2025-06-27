@@ -10,7 +10,9 @@ const __dirname = path.dirname(__filename);
 
 export const index = async (req, res) => {
   const baseUrl = `${req.protocol}://${req.get("host")}`;
-  const products = await Product.find().lean();
+
+  const ownerId = req.user._id;
+  const products = await Product.find({ owner: ownerId }).lean();
 
   const updatedProducts = products.map((product) => ({
     ...product,
@@ -26,7 +28,7 @@ export const index = async (req, res) => {
 
 export const store = async (req, res) => {
   try {
-    const { name, description, quantity, price } = req.body;
+    const { salon, name, description, quantity, price } = req.body;
 
     // console.log("Uploaded File:", req.file);
     const nameTranslations = await translateText(name, ["de"]);
@@ -48,6 +50,7 @@ export const store = async (req, res) => {
 
     const product = await Product.create({
       owner: req.user._id,
+      salon,
       name: nameObj,
       description: descriptionObj,
       quantity,

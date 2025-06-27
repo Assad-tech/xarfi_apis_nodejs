@@ -15,7 +15,10 @@ export const index = async (req, res) => {
   // console.log(baseUrl);
 
   try {
-    const styles = await Style.find().populate("master").lean();
+    const ownerId = req.user._id;
+    const styles = await Style.find({ owner: ownerId })
+      .populate("master")
+      .lean();
 
     const updatedStyles = styles.map((style) => ({
       ...style,
@@ -40,7 +43,7 @@ export const index = async (req, res) => {
 
 export const store = async (req, res) => {
   try {
-    const { name, master } = req.body;
+    const { salon, name, master } = req.body;
 
     const nameTranslations = await translateText(name, ["de"]);
     const nameObj = {
@@ -52,6 +55,7 @@ export const store = async (req, res) => {
 
     const style = await Style.create({
       owner: req.user._id,
+      salon,
       images,
       name: nameObj,
       master,

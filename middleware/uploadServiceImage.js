@@ -49,7 +49,7 @@ export const uploadServiceImage = (req, res, next) => {
       return res.status(400).json({ error: err.message });
     } else if (!req.file) {
       // No image provided
-      return res.status(400).json({ error: "Image field is required" });
+      return res.status(400).json({ message: "Image field is required" });
     }
 
     // Continue to next middleware/route handler

@@ -22,6 +22,7 @@ export const store = async (req, res) => {
 
     const identityCart = await IdentityCard.create({
       owner: user._id,
+      salon: req.body.salon,
       frontImage: frontImagePath,
       backImage: backImagePath,
     });

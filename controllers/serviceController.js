@@ -1,7 +1,7 @@
 import Service from "../models/Service.js";
 
 import { translateText } from "../lib/translator.js";
-import  ServiceCategory  from "../models/ServiceCategory.js";
+import ServiceCategory from "../models/ServiceCategory.js";
 
 import fs from "fs";
 import path from "path";
@@ -14,15 +14,8 @@ const __dirname = path.dirname(__filename);
 // Create new Service
 export const createService = async (req, res) => {
   try {
-    const {
-      salonId,
-      name,
-      category,
-      description,
-      targetGroup,
-      duration,
-      price,
-    } = req.body;
+    const { salon, name, category, description, targetGroup, duration, price } =
+      req.body;
 
     // Translate name
     const nameTranslations = await translateText(name, ["de"]);
@@ -62,7 +55,7 @@ export const createService = async (req, res) => {
 
     const newService = new Service({
       owner: req.user._id,
-      salon: salonId,
+      salon: salon,
       name: nameObj,
       category: categories,
       description: descriptionObj,
@@ -96,8 +89,14 @@ export const getServiceWithCategory = async (req, res) => {
     const { targetGroup } = req.body;
     const filterValue = targetGroup ?? "All";
     // return req.body.targetGroup;
+    const ownerId = req.user._id;
+    // console.log(ownerId);
     const serviceCategories = await ServiceCategory.find().lean();
-    const services = await Service.find({ targetGroup: filterValue }).lean(); // use .lean() for better performance
+    const services = await Service.find({
+      owner: ownerId,
+      targetGroup: filterValue, // e.g., 'Men'
+    }).lean();
+    // const services = await Service.find().lean();
 
     // return res.json({
     //   data: services,

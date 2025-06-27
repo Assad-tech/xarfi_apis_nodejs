@@ -94,6 +94,7 @@ export const verifyOtp = async (req, res) => {
       message: "OTP verified successfully",
       token,
       user: { id: user._id, name: user.name, role: user.role },
+      stage: "salon_setup",
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -145,6 +146,7 @@ export const login = async (req, res) => {
       message: "Login successful",
       user: { id: user._id, name: user.name, role: user.role },
       token: generateToken(user._id),
+      stage: "salon_setup",
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });

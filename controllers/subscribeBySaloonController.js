@@ -3,7 +3,7 @@ import Subscription from "../models/Subscription.js";
 
 export const createSubscription = async (req, res) => {
   try {
-    const { subscriptionId } = req.body;
+    const { salon, subscriptionId } = req.body;
 
     // if (!["monthly", "yearly"].includes(planType)) {
     //   return res.status(400).json({ message: "Invalid plan type" });
@@ -29,6 +29,7 @@ export const createSubscription = async (req, res) => {
 
     const subscribeBySaloon = await SubscribeBySaloon.create({
       owner: req.user._id,
+      salon,
       subscriptionId,
       startDate,
       nextBillingDate,

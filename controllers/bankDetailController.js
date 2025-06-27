@@ -3,7 +3,7 @@ import BankDetail from "../models/BankDetail.js";
 
 export const store = async (req, res) => {
   try {
-    const { accountTitle, bank, iban, bic } = req.body;
+    const { salon, accountTitle, bank, iban, bic } = req.body;
 
     const accountTitleTranslations = await translateText(accountTitle, ["de"]);
     const accountTitleObj = {
@@ -13,6 +13,7 @@ export const store = async (req, res) => {
 
     const bankDetail = await BankDetail.create({
       owner: req.user._id,
+      salon,
       accountTitle: accountTitleObj,
       bank,
       iban,

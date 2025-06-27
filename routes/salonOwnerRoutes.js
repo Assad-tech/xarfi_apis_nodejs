@@ -147,7 +147,7 @@ router.post(
 );
 
 // get salon
-router.get("/get-salon", authenticate, salonController.index);
+router.get("/get-salon", authenticate, parseFormData, salonController.index);
 
 // this is adminsite route
 
