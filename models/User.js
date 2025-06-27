@@ -23,6 +23,23 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    stage: {
+      type: String,
+      enum: [
+        "initial_stage",
+        "salon_setup",
+        "services",
+        "masters",
+        "style",
+        "products",
+        "identity_card",
+        "bank_detail",
+        "subscription",
+        "complete",
+      ],
+      default: "intial_stage",
+    },
+
     role: {
       type: String,
       enum: ["admin", "master", "salon", "user"],

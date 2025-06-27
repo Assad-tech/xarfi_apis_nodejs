@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import Master from "../models/Master.js";
-
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
