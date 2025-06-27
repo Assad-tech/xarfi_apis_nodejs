@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
         "subscription",
         "complete",
       ],
-      default: "intial_stage",
+      default: "initial_stage",
     },
 
     role: {
