@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
-import { translateText } from "../lib/translator.js";
+// import { translateText } from "../lib/translator.js";
 
 // Register a new user
 export const register = async (req, res) => {
@@ -22,10 +22,10 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Phone number already in use" });
     }
 
-    const nameTranslations = await translateText(name, ["de"]);
+    // const nameTranslations = await translateText(name, ["de"]);
     const nameObj = {
       en: name,
-      de: nameTranslations.de,
+      // de: nameTranslations.de,
     };
 
     // Role validation
